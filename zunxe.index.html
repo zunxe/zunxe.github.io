@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Watch Old Cartoons</title>
+    <style>
+        body {
+            background-color: black;
+            color: yellow;
+        }
+        h1, h2, h3 {
+            color: yellow;
+        }
+        .video-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .custom-video-player {
+            width: 70%;
+            max-width: 800px;
+            border: 2px solid yellow;
+            border-radius: 5px;
+            overflow: hidden;
+            text-align: center;
+            position: relative;
+        }
+        .video-player h3 {
+            color: black;
+            margin: 0;
+            padding: 10px;
+        }
+        .video-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 5px;
+            box-sizing: border-box;
+        }
+        .play-button, .skip-button, .fullscreen-button {
+            cursor: pointer;
+            color: yellow;
+            font-size: 24px;
+        }
+        .play-button:hover, .skip-button:hover, .fullscreen-button:hover {
+            text-decoration: underline;
+        }
+        .timeline {
+            width: 100%;
+            height: 4px;
+            background-color: black;
+            position: relative;
+        }
+        .progress {
+            height: 100%;
+            width: 0;
+            background-color: yellow;
+        }
+        .volume-bar-container {
+            width: 100px;
+            height: 4px;
+            background-color: rgba(255, 255, 255, 0.3);
+            position: relative;
+            margin-left: 10px;
+        }
+        .volume-bar {
+            height: 100%;
+            width: 100%;
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <h1>Watch Old Cartoons</h1>
+    <div class="video-container">
+        <div class="custom-video-player">
+            <h3></h3>
+            <video id="videoPlayer" width="100%" controlsList="nodownload">
+                <!-- Add the first video from the provided links -->
+                <source id="videoSource" src="" type="video/mp4">
+            </video>
+            <div class="video-controls">
+                <span class="play-button" onclick="togglePlay()">&#9658;</span>
+                <span class="skip-button" onclick="skipToNextVideo()">Skip &raquo;</span>
+                <div class="volume-bar-container">
+                    <input class="volume-bar" type="range" min="0" max="1" step="0.01">
+                </div>
+                <span class="fullscreen-button" onclick="toggleFullScreen()">&#9744;</span>
+            </div>
+            <div class="timeline">
+                <div class="progress"></div>
+            </div>
+        </div>
+    </div>
+    <h2>Owners Socials</h2>
+    <ul class="socials">
+        <li><a href="https://twitter.com/ZlNQER" target="_blank">Twitter</a></li>
+        <li><a href="https://www.youtube.com/@zinq-" target="_blank">YouTube</a></li>
+        <li><a href="https://www.twitch.tv/gumbowi" target="_blank">Twitch</a></li>
+        <li><a href="https://discord.gg/BjrCMZJYfx" target="_blank">Discord</a></li>
+    </ul>
+
+    <script>
+        // Define an array of video URLs
+        const videoUrls = [
+            "https://archive.org/download/10001110101010110101010010001111111101010101/Fosters%20home%20for%20imagenary%20friends%20seg/fos%20seg%209.mp4",
+            "https://archive.org/download/010129294898759826582965325/Blocks/billy%20and%20mandy%20segs/bm%20seg%201.mp4",
+            "https://ia903200.us.archive.org/2/items/010129294898759826582965325/Blocks/spongebob%20segs/spo%20seg%2015.mp4",
+			"https://archive.org/download/010129294898759826582965325/Blocks/ed%20edd%20n%20eddy%20segs/ed%20seg%2013.mp4",
+			"https://ia801907.us.archive.org/6/items/86566345/Flapjack%20segs/flap%20seg%202.mp4",
+			"https://archive.org/download/93024-9324850932489866/john%20seg%2021.mp4 ",
+			"https://archive.org/download/CNSBP2K4/hamtaro%2008-21-2004.mp4",
+			"https://archive.org/download/vcr-smurfs-may-1996-2020-10-03-14-19-02/VCR%20-%20SmurfsMay1996%20-%202020-10-03%2014-19-02.mp4",
+			"https://ia801701.us.archive.org/10/items/dbzenter-goku-toonami-1998/DBZEnterGokuToonami1998.ia.mp4",
+			"https://ia801801.us.archive.org/5/items/pink-panther-november-1998/PinkPantherNovember1998.mp4",
+			"https://archive.org/download/10001110101010110101010010001111111101010101/Chowder%20-%20The%20complete%20series/cho%20seg%207.mp4 ",
+            "https://ia904708.us.archive.org/14/items/cartoon-networks-the-big-game-xxix-bugs-vs-daffy/Cartoon%20Network%27s%20The%20Big%20Game%20XXIX%20-%20Bugs%20Vs%20Daffy.ia.mp4"
+        ];
+
+        // Shuffle the video URLs
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        shuffleArray(videoUrls);
+
+        // Get references to video elements
+        const videoPlayer = document.getElementById("videoPlayer");
+        const videoSource = document.getElementById("videoSource");
+        const playButton = document.querySelector(".play-button");
+        const skipButton = document.querySelector(".skip-button");
+        const progress = document.querySelector(".progress");
+        const timeline = document.querySelector(".timeline");
+        const volumeBar = document.querySelector(".volume-bar");
+        const fullscreenButton = document.querySelector(".fullscreen-button");
+
+        // Set the initial video source to the first video URL
+        let currentVideoIndex = 0;
+        videoSource.src = videoUrls[currentVideoIndex];
+        document.querySelector("h3").innerText = "";
+
+        // Function to toggle video play/pause
+        function togglePlay() {
+            if (videoPlayer.paused || videoPlayer.ended) {
+                videoPlayer.play();
+                playButton.innerHTML = "&#10074;&#10074;";
+            } else {
+                videoPlayer.pause();
+                playButton.innerHTML = "&#9658;";
+            }
+        }
+
+        // Update the progress bar as the video plays
+        videoPlayer.addEventListener("timeupdate", updateProgress);
+
+        function updateProgress() {
+            const percent = (videoPlayer.currentTime / videoPlayer.duration) * 100;
+            progress.style.width = percent + "%";
+        }
+
+        // Function to skip to the next video in the list
+        function skipToNextVideo() {
+            currentVideoIndex = (currentVideoIndex + 1) % videoUrls.length;
+            videoSource.src = videoUrls[currentVideoIndex];
+            videoPlayer.load();
+            videoPlayer.play();
+            document.querySelector("h3").innerText = "";
+        }
+
+        // Function to update the volume
+        function updateVolume() {
+            videoPlayer.volume = volumeBar.value;
+        }
+
+        // Set initial volume to 0.5 (50%)
+        videoPlayer.volume = 0.5;
+        volumeBar.value = videoPlayer.volume;
+        volumeBar.addEventListener("input", updateVolume);
+
+        // Function to toggle full-screen mode
+        function toggleFullScreen() {
+            if (document.fullscreenElement || document.webkitFullscreenElement ||
+                document.mozFullScreenElement || document.msFullscreenElement) {
+                // Exit full-screen
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.mozCancelFullScreen) {
+                    document.mozCancelFullScreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+            } else {
+                // Enter full-screen
+                if (videoPlayer.requestFullscreen) {
+                    videoPlayer.requestFullscreen();
+                } else if (videoPlayer.webkitRequestFullscreen) {
+                    videoPlayer.webkitRequestFullscreen();
+                } else if (videoPlayer.mozRequestFullScreen) {
+                    videoPlayer.mozRequestFullScreen();
+                } else if (videoPlayer.msRequestFullscreen) {
+                    videoPlayer.msRequestFullscreen();
+                }
+            }
+        }
+
+        // Listen for full-screen change events
+        document.addEventListener("fullscreenchange", updateFullscreenState);
+        document.addEventListener("webkitfullscreenchange", updateFullscreenState);
+        document.addEventListener("mozfullscreenchange", updateFullscreenState);
+        document.addEventListener("MSFullscreenChange", updateFullscreenState);
+
+        function updateFullscreenState() {
+            const isFullScreen = !!(document.fullscreenElement || document.webkitFullscreenElement ||
+                document.mozFullScreenElement || document.msFullscreenElement);
+
+            if (isFullScreen) {
+                fullscreenButton.innerHTML = "&#9746;";
+            } else {
+                fullscreenButton.innerHTML = "&#9744;";
+            }
+        }
+    </script>
+</body>
+</html>
